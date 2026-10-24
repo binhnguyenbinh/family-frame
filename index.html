@@ -560,6 +560,11 @@
         showFlash(isPaused ? '❚❚ Tạm dừng' : '▶ Tiếp tục');
     });
 
+    // Auto-reload whole page every 6 hours to fetch newly synced photos from GitHub
+    setTimeout(function() {
+        window.location.reload();
+    }, 6 * 60 * 60 * 1000);
+
     // Start show
     showPhoto(0);
     startTimer();
