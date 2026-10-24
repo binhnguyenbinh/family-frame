@@ -1,0 +1,38 @@
+name: Daily Photo Sync
+
+on:
+  schedule:
+    # Chạy mỗi ngày vào lúc 00:00 UTC (tức 07:00 sáng giờ Việt Nam)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Cho phép bấm nút "Run workflow" thủ công trên web GitHub bất cứ lúc nào
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch Google Photos & Update
+        run: python update_photos.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add index.html
+            git commit -m "Auto-sync photos from Google Photos [skip ci]"
+            git push
+            echo "Changes pushed successfully!"
+          else
+            echo "No changes to commit."
+          fi
